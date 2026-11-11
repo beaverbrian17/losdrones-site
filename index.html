@@ -164,6 +164,14 @@ h3 { font-family: var(--display); font-weight: 750; font-stretch: 90%; font-size
 .steps li::before { content: counter(step); display: block; font-family: var(--display); font-weight: 900; font-stretch: 75%; font-size: 3rem; line-height: 1; color: var(--accent); margin-bottom: 8px; font-variant-numeric: tabular-nums; }
 .steps p { margin: 0; color: var(--muted); }
 
+.pricing { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px clamp(20px, 4vw, 48px); margin: 0; }
+.pricing div { border-top: 2px solid var(--ink); padding-top: 12px; }
+.pricing dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.pricing dd { margin: 6px 0 0; }
+.pricing .amt { display: block; font-family: var(--display); font-weight: 800; font-stretch: 85%; font-size: 1.9rem; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.pricing .sub { display: block; color: var(--muted); font-size: 0.95rem; margin-top: 4px; }
+.price-note { margin: 24px 0 0; color: var(--muted); max-width: 70ch; }
+
 /* About */
 .about-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
 .about-grid p { margin: 0 0 16px; max-width: 62ch; }
@@ -211,7 +219,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
 @media (max-width: 620px) {
   .nav { gap: 14px; }
   .nav .nav-link { display: none; }
-  .services, .bands, form { grid-template-columns: minmax(0, 1fr); }
+  .services, .bands, form, .pricing { grid-template-columns: minmax(0, 1fr); }
   .bands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .steps { grid-template-columns: minmax(0, 1fr); }
@@ -237,6 +245,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
     <nav class="nav" aria-label="Main">
       <a class="nav-link" href="#services">Services</a>
       <a class="nav-link" href="#how">How it works</a>
+      <a class="nav-link" href="#pricing">Pricing</a>
       <a class="nav-link" href="#about">About</a>
       <a class="btn" href="#contact">Free field consult</a>
     </nav>
@@ -368,6 +377,24 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
         <li><h3>You get the maps</h3><p>A vigor map and a photo map, plus a short summary of where the numbers are lowest. Files open on your phone, load into farm software, or go straight to your agronomist.</p></li>
         <li><h3>Track the season</h3><p>Repeat flights show whether a change made a difference and flag new weak spots while they're still small.</p></li>
       </ol>
+    </div>
+  </section>
+
+  <section id="pricing" class="rule">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="label">Pricing</p>
+          <h2>Straightforward pricing</h2>
+        </div>
+        <p>Quotes are based on acreage and distance. Every vegetation index from the same flight is included, so there's no charge per map.</p>
+      </div>
+      <dl class="pricing">
+        <div><dt>Single flight</dt><dd><span class="amt">From $10/acre</span><span class="sub">$450 minimum, covers up to about 40 acres</span></dd></div>
+        <div><dt>Season program</dt><dd><span class="amt">From $7/acre</span><span class="sub">Per flight, with four or more flights in a season</span></dd></div>
+        <div><dt>Travel</dt><dd><span class="amt">Included</span><span class="sub">Within 30 miles of Cottonwood. Farther out quoted by distance.</span></dd></div>
+      </dl>
+      <p class="price-note">Larger acreage and photo-map-only jobs (drainage, storm or winter mapping) are priced lower. Send your acreage and location for an exact quote.</p>
     </div>
   </section>
 
