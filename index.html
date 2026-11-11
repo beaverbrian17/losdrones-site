@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LOS Drones</title>
+<meta name="description" content="Multispectral drone crop-vigor mapping for North State orchards, row crops and pasture. Local Part 107 pilot based in Cottonwood, Tehama County.">
+<meta property="og:title" content="LOS Drones | Multispectral crop-vigor mapping">
+<meta property="og:description" content="See crop stress before it shows. Drone vigor maps for orchards, row crops and pasture in Tehama, Shasta, Glenn and Butte counties.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231F5C3B'/%3E%3Ccircle cx='9' cy='24' r='3' fill='%23EEF1EA'/%3E%3Cpath d='M11 22 L21 11' stroke='%23EEF1EA' stroke-width='2' stroke-dasharray='2.5 2.5'/%3E%3Ccircle cx='23' cy='9' r='3.5' fill='%23ecc24f'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout idea: a field survey sheet. Left-aligned copy, spec-sheet rows, one big interactive NDVI map as the hero. */
+  --ground: #EEF1EA;
+  --surface: #F8FAF5;
+  --ink: #16201A;
+  --muted: #47534A;
+  --line: #C6CFC3;
+  --accent: #1F5C3B;
+  --accent-ink: #FFFFFF;
+  --stress-ink: #9A3D12;
+  --display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #101712;
+    --surface: #172019;
+    --ink: #E5EBE3;
+    --muted: #A9B5AA;
+    --line: #2E3C31;
+    --accent: #7CC796;
+    --accent-ink: #0E1A12;
+    --stress-ink: #F0965E;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #101712;
+  --surface: #172019;
+  --ink: #E5EBE3;
+  --muted: #A9B5AA;
+  --line: #2E3C31;
+  --accent: #7CC796;
+  --accent-ink: #0E1A12;
+  --stress-ink: #F0965E;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+img, canvas, svg { max-width: 100%; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:hover { color: var(--ink); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); }
+
+/* Header */
+.site-header { border-bottom: 1px solid var(--line); }
+.site-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-block: 14px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+.brand svg { width: 34px; height: 34px; flex: none; }
+.brand-name { font-family: var(--display); font-weight: 900; font-stretch: 115%; font-size: 1.35rem; letter-spacing: 0.01em; line-height: 1; }
+.brand-name span { font-weight: 500; font-stretch: 100%; }
+.brand-sub { display: block; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+.nav { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.nav a { color: var(--ink); text-decoration: none; font-weight: 600; font-size: 0.98rem; }
+.nav a:hover { text-decoration: underline; }
+.nav .btn { padding: 10px 16px; min-height: 44px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 12px 20px; border-radius: 6px;
+  font-family: var(--body); font-weight: 700; font-size: 1rem; text-decoration: none;
+  border: 2px solid var(--accent); background: var(--accent); color: var(--accent-ink); cursor: pointer;
+}
+.btn:hover { filter: brightness(1.08); color: var(--accent-ink); }
+.nav a.btn, .nav a.btn:hover { color: var(--accent-ink); text-decoration: none; }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--ink); }
+.btn.ghost:hover { background: var(--ink); color: var(--ground); filter: none; }
+
+/* Hero */
+.hero { padding-block: clamp(32px, 6vw, 72px) clamp(28px, 4vw, 48px); }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
+.kicker { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
+h1 {
+  font-family: var(--display); font-weight: 850; font-stretch: 78%;
+  font-size: clamp(2.7rem, 6.2vw, 5rem); line-height: 0.94; letter-spacing: -0.005em;
+  margin: 0 0 20px; text-wrap: balance;
+}
+.lede { font-size: 1.18rem; color: var(--muted); max-width: 52ch; margin: 0 0 26px; }
+.cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* Compare map */
+.map-figure { margin: 0; }
+.map-frame { position: relative; border-radius: 10px; overflow: hidden; background: #2a3a2c; box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 18px 40px -22px rgba(10, 30, 15, 0.55); }
+#field { display: block; width: 100%; height: auto; cursor: ew-resize; touch-action: pan-y; }
+.map-controls { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; margin-top: 12px; font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.map-controls input[type="range"] { width: 100%; accent-color: var(--accent); min-height: 44px; }
+.legend { margin-top: 10px; }
+.legend-bar { height: 12px; border-radius: 3px; background: linear-gradient(90deg, #7a2e14 0%, #a8471c 20%, #d9772e 35%, #ecc24f 50%, #c4d65a 65%, #7fbf4f 78%, #3c9a45 90%, #1b6a35 100%); }
+.legend-ticks { position: relative; height: 18px; font-family: var(--mono); font-size: 0.7rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.legend-ticks span { position: absolute; top: 3px; transform: translateX(-50%); }
+.legend-words { display: flex; justify-content: space-between; font-size: 0.86rem; color: var(--muted); margin-top: 2px; }
+.map-caption { font-size: 0.86rem; color: var(--muted); margin-top: 8px; }
+
+/* Spec sheet */
+.spec { margin: clamp(28px, 4vw, 48px) 0 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0 20px; }
+.spec div { border-top: 2px solid var(--ink); padding-top: 10px; }
+.spec dt { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.spec dd { margin: 4px 0 0; font-family: var(--display); font-weight: 700; font-stretch: 92%; font-size: 1.12rem; line-height: 1.2; }
+
+/* Sections */
+section { padding-block: clamp(48px, 7vw, 88px); }
+.rule { border-top: 1px solid var(--line); }
+.section-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: clamp(16px, 4vw, 56px); align-items: end; margin-bottom: clamp(24px, 4vw, 40px); }
+.label { font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+h2 { font-family: var(--display); font-weight: 800; font-stretch: 82%; font-size: clamp(2rem, 4vw, 3rem); line-height: 1; margin: 0; text-wrap: balance; }
+h3 { font-family: var(--display); font-weight: 750; font-stretch: 90%; font-size: 1.32rem; line-height: 1.15; margin: 0 0 8px; text-wrap: balance; }
+.section-head p { margin: 0; color: var(--muted); max-width: 60ch; }
+
+.services { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px clamp(24px, 4vw, 56px); }
+.service { border-top: 1px solid var(--line); padding-top: 18px; }
+.tag { display: inline-block; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; color: var(--muted); border: 1px solid var(--line); border-radius: 3px; padding: 2px 7px; margin-bottom: 10px; }
+.service p { margin: 0; color: var(--muted); max-width: 52ch; }
+.also { margin: 32px 0 0; color: var(--muted); }
+.also strong { color: var(--ink); }
+
+/* Sensor */
+.sensor { background: var(--surface); }
+.sensor-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+.sensor-grid > div > p { margin: 0 0 16px; max-width: 58ch; }
+.bands { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.band { border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--ground); }
+.band .swatch { height: 46px; }
+.band .meta { padding: 10px 12px 12px; }
+.band .nm { font-family: var(--display); font-weight: 800; font-stretch: 85%; font-size: 1.5rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.band .nm small { font-size: 0.8rem; font-weight: 600; margin-left: 2px; }
+.band .name { font-size: 0.92rem; color: var(--muted); margin-top: 4px; }
+.nir .swatch { background: repeating-linear-gradient(135deg, #3a2532 0 6px, #4b2f40 6px 12px); }
+.formula { margin: 18px 0 0; padding: 16px 18px; border-left: 0; border: 1px solid var(--line); border-radius: 6px; background: var(--ground); }
+.formula code { font-family: var(--mono); font-size: clamp(0.95rem, 2.2vw, 1.15rem); font-weight: 500; color: var(--ink); }
+.formula p { margin: 8px 0 0; font-size: 0.92rem; color: var(--muted); }
+.kit { margin-top: 18px; font-size: 0.95rem; color: var(--muted); }
+
+/* Steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; counter-reset: step; }
+.steps li { counter-increment: step; border-top: 2px solid var(--ink); padding-top: 14px; }
+.steps li::before { content: counter(step); display: block; font-family: var(--display); font-weight: 900; font-stretch: 75%; font-size: 3rem; line-height: 1; color: var(--accent); margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+.steps p { margin: 0; color: var(--muted); }
+
+/* About */
+.about-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+.about-grid p { margin: 0 0 16px; max-width: 62ch; }
+.area { border-top: 2px solid var(--ink); padding-top: 14px; }
+.area ul { list-style: none; margin: 8px 0 12px; padding: 0; }
+.area li { font-family: var(--display); font-weight: 750; font-stretch: 88%; font-size: 1.35rem; line-height: 1.35; }
+.area p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+/* Contact */
+.contact { background: var(--surface); }
+.contact-grid { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+.contact-grid > div > p { color: var(--muted); max-width: 46ch; }
+.direct { margin-top: 22px; border-top: 1px solid var(--line); padding-top: 14px; }
+.direct dt { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.direct dd { margin: 2px 0 12px; font-weight: 600; font-size: 1.1rem; }
+form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field.full { grid-column: 1 / -1; }
+label { font-weight: 600; font-size: 0.95rem; }
+label .opt { font-weight: 400; color: var(--muted); }
+input, select, textarea {
+  font: inherit; color: var(--ink); background: var(--ground);
+  border: 1.5px solid var(--line); border-radius: 6px; padding: 11px 12px; min-height: 48px; width: 100%;
+}
+textarea { min-height: 120px; resize: vertical; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.form-actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.form-note { font-size: 0.9rem; color: var(--muted); margin: 0; }
+.error { color: var(--stress-ink); font-weight: 600; font-size: 0.92rem; margin: 0; }
+.composed { grid-column: 1 / -1; border: 1px solid var(--line); border-radius: 6px; padding: 16px; background: var(--ground); }
+.composed[hidden] { display: none; }
+.composed p { margin: 0 0 10px; }
+.composed pre { white-space: pre-wrap; font-family: var(--mono); font-size: 0.86rem; margin: 0 0 12px; color: var(--ink); }
+
+/* Footer */
+.site-footer { border-top: 1px solid var(--line); padding-block: 26px 36px; font-size: 0.92rem; color: var(--muted); }
+.site-footer .wrap { display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; }
+
+/* Responsive */
+@media (max-width: 960px) {
+  .hero-grid, .sensor-grid, .about-grid, .contact-grid, .section-head { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 20px; }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .nav { gap: 14px; }
+  .nav .nav-link { display: none; }
+  .services, .bands, form { grid-template-columns: minmax(0, 1fr); }
+  .bands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .steps { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="LOS Drones home">
+      <svg viewBox="0 0 34 34" aria-hidden="true">
+        <rect width="34" height="34" rx="7" fill="var(--accent)"/>
+        <circle cx="9" cy="26" r="3.2" fill="var(--ground)"/>
+        <path d="M11.5 23.5 L22 12" stroke="var(--ground)" stroke-width="2" stroke-dasharray="2.6 2.6" fill="none"/>
+        <circle cx="24.5" cy="9.5" r="3.8" fill="#ecc24f"/>
+      </svg>
+      <span>
+        <span class="brand-name">LOS <span>Drones</span></span>
+        <span class="brand-sub">Line of sight · Cottonwood, CA</span>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a class="nav-link" href="#services">Services</a>
+      <a class="nav-link" href="#how">How it works</a>
+      <a class="nav-link" href="#about">About</a>
+      <a class="btn" href="#contact">Free field consult</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <p class="kicker">Multispectral drone mapping · North State</p>
+          <h1>See crop stress before it shows.</h1>
+          <p class="lede">LOS Drones flies orchards, row crops and pasture with a multispectral drone and turns each flight into a vigor map of every tree and row. The map shows where the canopy is weaker, so you and your agronomist know exactly where to walk. I collect the data. You and your crop adviser make the call.</p>
+          <div class="cta-row">
+            <a class="btn" href="#contact">Book a free field consult</a>
+            <a class="btn ghost" href="#how">How a flight works</a>
+          </div>
+        </div>
+
+        <figure class="map-figure">
+          <div class="map-frame">
+            <canvas id="field" role="img" aria-label="Illustrated orchard block shown two ways. On the natural-color side the trees all look green. On the NDVI side, a cluster of trees, one full row and one corner show up yellow and orange as lower-vigor zones."></canvas>
+          </div>
+          <div class="map-controls">
+            <span>Natural color</span>
+            <input type="range" id="compare" min="0" max="100" value="42" aria-label="Slide to compare natural color and NDVI views">
+            <span>NDVI</span>
+          </div>
+          <div class="legend" aria-hidden="true">
+            <div class="legend-bar"></div>
+            <div class="legend-ticks">
+              <span style="left:10%">0.0</span>
+              <span style="left:30%">0.2</span>
+              <span style="left:50%">0.4</span>
+              <span style="left:70%">0.6</span>
+              <span style="left:90%">0.8</span>
+            </div>
+            <div class="legend-words"><span>Bare soil</span><span>Stressed</span><span>Healthy canopy</span></div>
+          </div>
+          <figcaption class="map-caption">Drag across the map to compare. Illustration of an orchard block, not client data.</figcaption>
+        </figure>
+      </div>
+
+      <dl class="spec">
+        <div><dt>Pilot</dt><dd>FAA Part 107 certified</dd></div>
+        <div><dt>Flight time</dt><dd>2,000+ commercial hours</dd></div>
+        <div><dt>Safety record</dt><dd>Zero crashes or incidents</dd></div>
+        <div><dt>Accuracy</dt><dd>RTK, centimeter-level</dd></div>
+        <div><dt>Ag mapped</dt><dd>500+ acres</dd></div>
+        <div><dt>Based in</dt><dd>Cottonwood, Tehama County</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <section id="services" class="rule">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="label">Services</p>
+          <h2>What a flight tells you</h2>
+        </div>
+        <p>One flight captures a calibrated multispectral map and a high-resolution photo map of the same ground. I deliver the maps and the numbers behind them. Diagnosis stays with you and your agronomist or PCA.</p>
+      </div>
+      <div class="services">
+        <article class="service">
+          <span class="tag">NDVI · NDRE</span>
+          <h3>Crop vigor maps</h3>
+          <p>See where the canopy is weaker before it's obvious from the ground. Each map shows vigor tree by tree or row by row, so you and your adviser scout the right spots instead of the whole block.</p>
+        </article>
+        <article class="service">
+          <span class="tag">NDVI + photo map</span>
+          <h3>Row and zone patterns</h3>
+          <p>Uneven coverage tends to show up as a stripe of weaker canopy along a row, or a pocket in one corner. The map marks the pattern. Walking the line tells you why.</p>
+        </article>
+        <article class="service">
+          <span class="tag">20 MP orthomosaic</span>
+          <h3>Photo maps and acreage</h3>
+          <p>One sharp, measurable photo map of your whole property. Use it for planning, acreage checks, counting gaps for replants and keeping records.</p>
+        </article>
+        <article class="service">
+          <span class="tag">Dated, geo-referenced</span>
+          <h3>Storm, flood and frost records</h3>
+          <p>Before-and-after maps with dates and accurate positions for insurance claims, lenders and your own history. I've mapped post-flood damage for FEMA.</p>
+        </article>
+      </div>
+      <p class="also"><strong>Also available:</strong> 3D models and roof or structure surveys for barns, shops and solar arrays.</p>
+    </div>
+  </section>
+
+  <section id="sensor" class="sensor rule">
+    <div class="wrap">
+      <div class="sensor-grid">
+        <div>
+          <p class="label">The sensor</p>
+          <h2>Why a drone sees what you can't</h2>
+          <p style="margin-top:18px">Healthy leaves absorb red light for photosynthesis and reflect near-infrared light strongly. A stressed plant reflects less near-infrared, often before its leaves change color. The drone measures both, and a simple ratio turns that difference into a vigor score for every spot in the field.</p>
+          <p class="kit">Flown with a calibrated four-band multispectral camera, RTK positioning and a sunlight sensor that corrects for changing light, so maps from different days compare fairly.</p>
+        </div>
+        <div>
+          <ul class="bands" aria-label="The four multispectral bands the camera records">
+            <li class="band"><div class="swatch" style="background:#3d9b4a"></div><div class="meta"><div class="nm">560<small>nm</small></div><div class="name">Green</div></div></li>
+            <li class="band"><div class="swatch" style="background:#c0392b"></div><div class="meta"><div class="nm">650<small>nm</small></div><div class="name">Red</div></div></li>
+            <li class="band"><div class="swatch" style="background:#7b1f2a"></div><div class="meta"><div class="nm">730<small>nm</small></div><div class="name">Red edge</div></div></li>
+            <li class="band nir"><div class="swatch"></div><div class="meta"><div class="nm">860<small>nm</small></div><div class="name">Near-infrared, invisible to the eye</div></div></li>
+          </ul>
+          <div class="formula">
+            <code>NDVI = (NIR − Red) ÷ (NIR + Red)</code>
+            <p>Scores run from −1 to 1. Bare soil reads around 0.1 to 0.2. Dense, healthy canopy reads 0.6 and up.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" class="rule">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="label">The process</p>
+          <h2>How a flight works</h2>
+        </div>
+        <p>Most growers start with one block they're worried about. If the map earns its keep, we add the rest.</p>
+      </div>
+      <ol class="steps">
+        <li><h3>Tell me about the field</h3><p>Crop, acreage and what you're seeing or worried about. I'll suggest the right timing and which maps will answer your question.</p></li>
+        <li><h3>I fly it</h3><p>A pre-planned, automated flight at a set height with nothing driving through your rows. I handle the airspace checks and safety.</p></li>
+        <li><h3>You get the maps</h3><p>A vigor map and a photo map, plus a short summary of where the numbers are lowest. Files open on your phone, load into farm software, or go straight to your agronomist.</p></li>
+        <li><h3>Track the season</h3><p>Repeat flights show whether a change made a difference and flag new weak spots while they're still small.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="about" class="rule">
+    <div class="wrap">
+      <div class="about-grid">
+        <div>
+          <p class="label">About</p>
+          <h2 style="margin-bottom:22px">Local pilot, real flight time</h2>
+          <p>I'm Brian Beaver, owner and pilot of LOS Drones. The name stands for line of sight, the first rule of flying safe.</p>
+          <p>I've flown commercially since 2022: more than 2,000 hours, 15,000 structures inspected and 500+ acres of farmland mapped, without a crash or incident. I also trained new pilots and taught the agriculture class at a drone flight academy.</p>
+          <p>I live in Cottonwood with my family. When you reach out, you get me, and I'm glad to walk the field with you before we fly.</p>
+        </div>
+        <aside class="area" aria-label="Service area">
+          <p class="label" style="margin:0">Service area</p>
+          <ul>
+            <li>Tehama County</li>
+            <li>Shasta County</li>
+            <li>Glenn County</li>
+            <li>Butte County</li>
+          </ul>
+          <p>Farther out by arrangement.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact rule">
+    <div class="wrap">
+      <div class="contact-grid">
+        <div>
+          <p class="label">Contact</p>
+          <h2>Tell me about your field</h2>
+          <p style="margin-top:18px">Send a few details and I'll get back to you to set up a free consult. No commitment, and no jargon.</p>
+          <dl class="direct">
+            <dt>Email</dt>
+            <dd><a href="mailto:brian@losdrones.io">brian@losdrones.io</a></dd>
+            <dt>Based in</dt>
+            <dd>Cottonwood, California</dd>
+          </dl>
+        </div>
+        <form id="consult" novalidate>
+          <div class="field">
+            <label for="f-name">Your name</label>
+            <input id="f-name" name="name" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="f-farm">Farm or ranch <span class="opt">(optional)</span></label>
+            <input id="f-farm" name="farm" autocomplete="organization">
+          </div>
+          <div class="field">
+            <label for="f-county">County</label>
+            <select id="f-county" name="county">
+              <option>Tehama</option>
+              <option>Shasta</option>
+              <option>Glenn</option>
+              <option>Butte</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-crop">Crop</label>
+            <input id="f-crop" name="crop" placeholder="Walnuts, almonds, pasture…">
+          </div>
+          <div class="field">
+            <label for="f-acres">Approximate acres <span class="opt">(optional)</span></label>
+            <input id="f-acres" name="acres" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="f-reply">Best way to reach you</label>
+            <input id="f-reply" name="reply" placeholder="Phone or email" autocomplete="tel">
+          </div>
+          <div class="field full">
+            <label for="f-msg">What's going on?</label>
+            <textarea id="f-msg" name="message" placeholder="A block that looks off, an irrigation question, storm damage to document…" required></textarea>
+          </div>
+          <div class="form-actions">
+            <button class="btn" type="submit">Email this to Brian</button>
+            <p class="form-note">Opens your email app with your details filled in.</p>
+            <p class="error" id="form-error" role="alert"></p>
+          </div>
+          <div class="composed" id="composed" hidden>
+            <p>Your email app should open with this message. If it didn't, copy it and send it to <strong>brian@losdrones.io</strong>.</p>
+            <pre id="composed-text"></pre>
+            <button class="btn ghost" type="button" id="copy-btn">Copy message</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>LOS Drones LLC · Cottonwood, California · FAA Part 107 certified remote pilot</span>
+    <span>© 2026 LOS Drones LLC</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // ---------- Seeded random so the illustration is identical on every load ----------
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  var rand = mulberry32(1107);
+
+  // ---------- NDVI color ramp ----------
+  var STOPS = [
+    [-0.1, [122, 46, 20]], [0.1, [168, 71, 28]], [0.25, [217, 119, 46]], [0.4, [236, 194, 79]],
+    [0.55, [196, 214, 90]], [0.68, [127, 191, 79]], [0.8, [60, 154, 69]], [0.9, [27, 106, 53]]
+  ];
+  function ramp(v) {
+    if (v <= STOPS[0][0]) return STOPS[0][1];
+    for (var i = 1; i < STOPS.length; i++) {
+      if (v <= STOPS[i][0]) {
+        var a = STOPS[i - 1], b = STOPS[i], t = (v - a[0]) / (b[0] - a[0]);
+        return [0, 1, 2].map(function (k) { return Math.round(a[1][k] + (b[1][k] - a[1][k]) * t); });
+      }
+    }
+    return STOPS[STOPS.length - 1][1];
+  }
+  function rgb(c, alpha) { return alpha == null ? 'rgb(' + c.join(',') + ')' : 'rgba(' + c.join(',') + ',' + alpha + ')'; }
+
+  // ---------- Field model (normalized 0..1 coordinates) ----------
+  var ROWS = 13, COLS = 17, X0 = 0.055, X1 = 0.945, Y0 = 0.075, Y1 = 0.84;
+  var rowGap = (Y1 - Y0) / (ROWS - 1), colGap = (X1 - X0) / (COLS - 1);
+  var zoneA = { x: 0.72, y: 0.35, rx: 0.15, ry: 0.15 };   // low-vigor pocket
+  var zoneC = { x: 0.23, y: 0.73, rx: 0.10, ry: 0.10 };   // wet corner
+  var LINE_ROW = 9, LINE_X0 = 0.55, LINE_X1 = 0.95;        // failing irrigation line
+  var trees = [], strips = [], specks = [];
+
+  function falloff(z, x, y) {
+    var dx = (x - z.x) / z.rx, dy = (y - z.y) / z.ry, d = Math.sqrt(dx * dx + dy * dy);
+    return d < 1 ? Math.pow(1 - d, 0.75) : 0;
+  }
+  for (var r = 0; r < ROWS; r++) {
+    for (var c = 0; c < COLS; c++) {
+      if ((r === 2 && c === 12) || (r === 6 && c === 3)) continue; // missing trees
+      var x = X0 + c * colGap + (rand() - 0.5) * 0.006;
+      var y = Y0 + r * rowGap + (rand() - 0.5) * 0.008;
+      var v = 0.8 + (rand() - 0.5) * 0.09;
+      v -= 0.44 * falloff(zoneA, x, y);
+      v -= 0.26 * falloff(zoneC, x, y);
+      if (r === LINE_ROW && x > LINE_X0 && x < LINE_X1) v -= 0.27 + rand() * 0.06;
+      trees.push({ x: x, y: y, s: 0.85 + rand() * 0.3, v: v });
+    }
+  }
+  for (var g = 0; g < ROWS - 1; g++) {
+    var gy = Y0 + (g + 0.5) * rowGap;
+    for (var sx = 0; sx < 40; sx++) {
+      var px = sx / 40;
+      var gv = 0.38 + rand() * 0.14 - 0.12 * falloff(zoneC, px, gy);
+      strips.push({ x: px, y: gy, v: gv, h: 0.32 + rand() * 0.12 });
+    }
+  }
+  for (var k = 0; k < 1500; k++) specks.push({ x: rand(), y: rand(), s: 0.4 + rand() * 1.4, d: rand() });
+
+  // ---------- Drawing ----------
+  var canvas = document.getElementById('field');
+  var ctx = canvas.getContext('2d');
+  var slider = document.getElementById('compare');
+  var W = 0, H = 0, DPR = 1, split = 0.42, fontsReady = false;
+
+  function size() {
+    var w = canvas.parentElement.clientWidth;
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = w; H = Math.round(w * 0.8);
+    canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
+    canvas.style.height = H + 'px';
+    draw();
+  }
+
+  function drawRGB() {
+    ctx.fillStyle = '#9b8565'; ctx.fillRect(0, 0, W, H);
+    for (var i = 0; i < specks.length; i++) {
+      var p = specks[i];
+      ctx.fillStyle = p.d > 0.5 ? 'rgba(70,55,35,0.22)' : 'rgba(205,190,160,0.22)';
+      ctx.fillRect(p.x * W, p.y * H, p.s, p.s);
+    }
+    var sh = rowGap * H;
+    strips.forEach(function (s) {
+      var l = 38 + (s.v - 0.4) * 30;
+      ctx.fillStyle = 'hsla(68, 22%, ' + l + '%, 0.55)';
+      ctx.fillRect(s.x * W, s.y * H - s.h * sh / 2, W / 40 + 1, s.h * sh);
+    });
+    ctx.fillStyle = '#b9a98c'; ctx.fillRect(0, 0.905 * H, W, 0.06 * H);
+    ctx.fillStyle = 'rgba(80,65,45,0.25)'; ctx.fillRect(0, 0.905 * H, W, 2);
+    var R = colGap * W * 0.47;
+    trees.forEach(function (t) {
+      var rr = R * t.s, cx = t.x * W, cy = t.y * H;
+      ctx.fillStyle = 'rgba(35,30,18,0.35)';
+      ctx.beginPath(); ctx.ellipse(cx + rr * 0.28, cy + rr * 0.32, rr, rr * 0.92, 0, 0, Math.PI * 2); ctx.fill();
+      var stress = Math.max(0, 0.8 - t.v);
+      var hue = 102 - stress * 18, light = 27 + stress * 9;
+      var grad = ctx.createRadialGradient(cx - rr * 0.35, cy - rr * 0.35, rr * 0.1, cx, cy, rr);
+      grad.addColorStop(0, 'hsl(' + hue + ', 30%, ' + (light + 12) + '%)');
+      grad.addColorStop(1, 'hsl(' + hue + ', 34%, ' + light + '%)');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(cx, cy, rr, 0, Math.PI * 2); ctx.fill();
+    });
+  }
+
+  function drawNDVI() {
+    ctx.fillStyle = rgb(ramp(0.12)); ctx.fillRect(0, 0, W, H);
+    for (var i = 0; i < specks.length; i++) {
+      var p = specks[i];
+      ctx.fillStyle = rgb(ramp(0.06 + p.d * 0.12), 0.5);
+      ctx.fillRect(p.x * W, p.y * H, p.s + 0.5, p.s + 0.5);
+    }
+    var sh = rowGap * H;
+    strips.forEach(function (s) {
+      ctx.fillStyle = rgb(ramp(s.v), 0.85);
+      ctx.fillRect(s.x * W, s.y * H - s.h * sh / 2, W / 40 + 1, s.h * sh);
+    });
+    ctx.fillStyle = rgb(ramp(0.03)); ctx.fillRect(0, 0.905 * H, W, 0.06 * H);
+    var R = colGap * W * 0.47;
+    trees.forEach(function (t) {
+      ctx.fillStyle = rgb(ramp(t.v));
+      ctx.beginPath(); ctx.arc(t.x * W, t.y * H, R * t.s, 0, Math.PI * 2); ctx.fill();
+    });
+    // Annotations
+    var fs = Math.max(10, Math.round(W / 58));
+    ctx.save();
+    ctx.setLineDash([6, 5]); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+    ctx.beginPath(); ctx.ellipse(zoneA.x * W, zoneA.y * H, zoneA.rx * W * 0.82, zoneA.ry * H * 0.95, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(zoneC.x * W, zoneC.y * H, zoneC.rx * W * 0.8, zoneC.ry * H * 0.95, 0, 0, Math.PI * 2); ctx.stroke();
+    var ly = (Y0 + LINE_ROW * rowGap) * H + R * 1.35;
+    ctx.beginPath(); ctx.moveTo(LINE_X0 * W + 6, ly); ctx.lineTo(LINE_X1 * W - 4, ly); ctx.stroke();
+    ctx.restore();
+    pill(W < 560 ? 'LOWER VIGOR' : 'LOWER VIGOR · WALK THIS BLOCK', zoneA.x * W, (zoneA.y - zoneA.ry) * H - fs * 0.6, fs, 'center');
+    pill('ROW PATTERN', LINE_X0 * W + 6, ly + fs * 1.2, fs, 'left');
+    pill('CORNER ZONE', zoneC.x * W, (zoneC.y - zoneC.ry) * H - fs * 0.5, fs, 'center');
+  }
+
+  function pill(text, x, y, fs, align) {
+    if (!fontsReady) return;
+    ctx.font = '500 ' + fs + 'px "IBM Plex Mono", ui-monospace, monospace';
+    var tw = ctx.measureText(text).width, padX = fs * 0.6, h = fs * 1.7;
+    var left = align === 'center' ? x - tw / 2 - padX : x;
+    left = Math.max(4, Math.min(left, W - tw - padX * 2 - 4));
+    var top = Math.max(4, y - h / 2);
+    ctx.fillStyle = 'rgba(16,23,18,0.86)';
+    roundRect(left, top, tw + padX * 2, h, 4); ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, left + padX, top + h / 2 + 0.5);
+  }
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+
+  function draw() {
+    if (!W) return;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    var sx = split * W;
+    drawRGB();
+    ctx.save(); ctx.beginPath(); ctx.rect(sx, 0, W - sx, H); ctx.clip(); drawNDVI(); ctx.restore();
+    // Corner labels
+    var fs = Math.max(10, Math.round(W / 52));
+    if (sx > W * 0.22) { ctx.save(); ctx.beginPath(); ctx.rect(0, 0, sx, H); ctx.clip(); pill('NATURAL COLOR', 12, 12 + fs, fs, 'left'); ctx.restore(); }
+    if (sx < W * 0.82) { ctx.save(); ctx.beginPath(); ctx.rect(sx, 0, W - sx, H); ctx.clip(); if (fontsReady) { ctx.font = '500 ' + fs + 'px "IBM Plex Mono", monospace'; var tw = ctx.measureText('NDVI').width; pill('NDVI', W - tw - fs * 1.2 - 12, 12 + fs, fs, 'left'); } ctx.restore(); }
+    // Divider
+    ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(sx - 2, 0, 4, H);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(sx - 1, 0, 2, H);
+    var hy = H / 2, hr = Math.max(16, W / 34);
+    ctx.beginPath(); ctx.arc(sx, hy, hr, 0, Math.PI * 2); ctx.fillStyle = '#ffffff'; ctx.fill();
+    ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.stroke();
+    ctx.fillStyle = '#16201A';
+    var a = hr * 0.38;
+    ctx.beginPath(); ctx.moveTo(sx - a * 0.45, hy - a); ctx.lineTo(sx - a * 1.45, hy); ctx.lineTo(sx - a * 0.45, hy + a); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(sx + a * 0.45, hy - a); ctx.lineTo(sx + a * 1.45, hy); ctx.lineTo(sx + a * 0.45, hy + a); ctx.fill();
+  }
+
+  function setSplit(v, fromSlider) {
+    split = Math.max(0, Math.min(1, v));
+    if (!fromSlider) slider.value = Math.round(split * 100);
+    draw();
+  }
+
+  // ---------- Interaction ----------
+  var dragging = false, intro = null;
+  function stopIntro() { if (intro) { cancelAnimationFrame(intro); intro = null; } }
+  function fromEvent(e) { var r = canvas.getBoundingClientRect(); return (e.clientX - r.left) / r.width; }
+  canvas.addEventListener('pointerdown', function (e) { stopIntro(); dragging = true; canvas.setPointerCapture(e.pointerId); setSplit(fromEvent(e)); });
+  canvas.addEventListener('pointermove', function (e) { if (dragging) setSplit(fromEvent(e)); });
+  canvas.addEventListener('pointerup', function () { dragging = false; });
+  canvas.addEventListener('pointercancel', function () { dragging = false; });
+  slider.addEventListener('input', function () { stopIntro(); setSplit(slider.value / 100, true); });
+
+  if ('ResizeObserver' in window) new ResizeObserver(size).observe(canvas.parentElement);
+  else window.addEventListener('resize', size);
+  size();
+
+  function playIntro() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var start = null, from = 0.9, to = 0.42, dur = 1600;
+    setSplit(from);
+    function step(ts) {
+      if (start === null) start = ts;
+      var t = Math.min(1, (ts - start) / dur);
+      var e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      setSplit(from + (to - from) * e);
+      intro = t < 1 ? requestAnimationFrame(step) : null;
+    }
+    intro = requestAnimationFrame(step);
+  }
+  var ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+  ready.then(function () { fontsReady = true; draw(); playIntro(); });
+
+  // ---------- Consult form: compose an email ----------
+  var form = document.getElementById('consult');
+  var errorEl = document.getElementById('form-error');
+  var box = document.getElementById('composed');
+  var out = document.getElementById('composed-text');
+  var copyBtn = document.getElementById('copy-btn');
+  var composed = '';
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var d = new FormData(form);
+    var name = (d.get('name') || '').trim(), msg = (d.get('message') || '').trim();
+    if (!name || !msg) {
+      errorEl.textContent = !name ? 'Add your name so Brian knows who to reply to.' : 'Add a line about what is going on in the field.';
+      (!name ? document.getElementById('f-name') : document.getElementById('f-msg')).focus();
+      return;
+    }
+    errorEl.textContent = '';
+    var county = d.get('county'), crop = (d.get('crop') || '').trim();
+    var subject = 'Field consult request: ' + [crop, county + ' County'].filter(Boolean).join(', ');
+    var lines = [
+      'Name: ' + name,
+      d.get('farm') ? 'Farm or ranch: ' + d.get('farm') : null,
+      'County: ' + county,
+      crop ? 'Crop: ' + crop : null,
+      d.get('acres') ? 'Approximate acres: ' + d.get('acres') : null,
+      d.get('reply') ? 'Best way to reach me: ' + d.get('reply') : null,
+      '',
+      msg
+    ].filter(function (l) { return l !== null; });
+    var body = lines.join('\n');
+    composed = 'To: brian@losdrones.io\nSubject: ' + subject + '\n\n' + body;
+    out.textContent = composed;
+    box.hidden = false;
+    try { window.location.href = 'mailto:brian@losdrones.io?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body); } catch (err) {}
+  });
+
+  copyBtn.addEventListener('click', function () {
+    var done = function () { copyBtn.textContent = 'Copied'; setTimeout(function () { copyBtn.textContent = 'Copy message'; }, 2000); };
+    try {
+      navigator.clipboard.writeText(composed).then(done, function () { copyBtn.textContent = 'Select the text above to copy'; });
+    } catch (err) { copyBtn.textContent = 'Select the text above to copy'; }
+  });
+})();
+</script>
+</body>
+</html>
