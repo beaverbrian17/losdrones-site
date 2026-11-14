@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://losdrones.io/sitemap.xml
-
 Disallow: /signature.html
+Sitemap: https://losdrones.io/sitemap.xml
