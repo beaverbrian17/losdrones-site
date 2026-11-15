@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
+Disallow: /signature.html
 Sitemap: https://losdrones.io/sitemap.xml
