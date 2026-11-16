@@ -15,6 +15,11 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="canonical" href="https://losdrones.io/">
 <meta property="og:url" content="https://losdrones.io/">
+<meta property="og:image" content="https://losdrones.io/img/og-orchard.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Drone view down orchard rows under a clear sky">
+<meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -23,6 +28,8 @@
   "url": "https://losdrones.io/",
   "email": "brian@losdrones.io",
   "telephone": "+1-530-377-3551",
+  "image": "https://losdrones.io/img/og-orchard.jpg",
+  "logo": "https://losdrones.io/brand/logo-720.png",
   "description": "Multispectral drone crop-vigor mapping and photo maps for orchards, row crops and pasture in the North State. FAA Part 107 pilot based in Cottonwood, California.",
   "founder": {"@type": "Person", "name": "Brian Beaver"},
   "address": {"@type": "PostalAddress", "addressLocality": "Cottonwood", "addressRegion": "CA", "addressCountry": "US"},
@@ -168,6 +175,16 @@ h3 { font-family: var(--display); font-weight: 750; font-stretch: 90%; font-size
 .tag { display: inline-block; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; color: var(--muted); border: 1px solid var(--line); border-radius: 3px; padding: 2px 7px; margin-bottom: 10px; }
 .service p { margin: 0; color: var(--muted); max-width: 52ch; }
 .also { margin: 32px 0 0; color: var(--muted); }
+
+/* From the field gallery */
+.gallery { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 2vw, 20px); }
+.gallery figure { margin: 0; }
+.gallery a { display: block; border-radius: 8px; overflow: hidden; background: var(--surface); }
+.gallery img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; transition: transform .35s ease; }
+.gallery a:hover img { transform: scale(1.03); }
+.gallery figcaption { margin-top: 8px; font-size: 0.92rem; color: var(--muted); }
+.gallery figcaption .tag { margin: 0 8px 0 0; }
+@media (prefers-reduced-motion: reduce) { .gallery img { transition: none; } .gallery a:hover img { transform: none; } }
 .also strong { color: var(--ink); }
 
 /* Sensor */
@@ -244,11 +261,13 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
   .hero-grid, .sensor-grid, .about-grid, .contact-grid, .section-head { grid-template-columns: minmax(0, 1fr); }
   .spec { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 20px; }
   .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 620px) {
   .nav { gap: 14px; }
   .nav .nav-link { display: none; }
   .services, .bands, form, .pricing { grid-template-columns: minmax(0, 1fr); }
+  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .bands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .steps { grid-template-columns: minmax(0, 1fr); }
@@ -428,6 +447,44 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
         <div><dt>Travel</dt><dd><span class="amt">Included</span><span class="sub">Within 50 miles of Cottonwood. Farther out quoted by distance.</span></dd></div>
       </dl>
       <p class="price-note">Larger acreage and photo-map-only jobs (drainage, storm or winter mapping) are priced lower. Send your acreage and location for an exact quote.</p>
+    </div>
+  </section>
+
+  <section id="field" class="rule">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="label">From the field</p>
+          <h2>A look at the work</h2>
+        </div>
+        <p>Orchards, row crops and vineyards, in true color and in the vegetation-index view that a vigor map is built from. Tap any photo to see it full size.</p>
+      </div>
+      <ul class="gallery">
+        <li><figure>
+          <a href="/img/orchard-1600.jpg" target="_blank" rel="noopener"><img src="/img/orchard-800.jpg" srcset="/img/orchard-800.jpg 800w, /img/orchard-1600.jpg 1600w" sizes="(max-width: 960px) 50vw, 380px" width="800" height="533" loading="lazy" decoding="async" alt="Drone view down orchard rows"></a>
+          <figcaption><span class="tag">Orchard</span>Orchard rows, mid-season</figcaption>
+        </figure></li>
+        <li><figure>
+          <a href="/img/ndvi-vine-rows-1600.jpg" target="_blank" rel="noopener"><img src="/img/ndvi-vine-rows-800.jpg" srcset="/img/ndvi-vine-rows-800.jpg 800w, /img/ndvi-vine-rows-1600.jpg 1600w" sizes="(max-width: 960px) 50vw, 380px" width="800" height="600" loading="lazy" decoding="async" alt="Vine rows shown in vegetation-index color, with healthy canopy in red and orange"></a>
+          <figcaption><span class="tag">Vigor view</span>Vine rows in vegetation-index color</figcaption>
+        </figure></li>
+        <li><figure>
+          <a href="/img/tomatoes-1600.jpg" target="_blank" rel="noopener"><img src="/img/tomatoes-800.jpg" srcset="/img/tomatoes-800.jpg 800w, /img/tomatoes-1600.jpg 1600w" sizes="(max-width: 960px) 50vw, 380px" width="800" height="533" loading="lazy" decoding="async" alt="Processing tomato field ahead of harvest"></a>
+          <figcaption><span class="tag">Row crop</span>Processing tomatoes ahead of harvest</figcaption>
+        </figure></li>
+        <li><figure>
+          <a href="/img/ndvi-drone-field-1600.jpg" target="_blank" rel="noopener"><img src="/img/ndvi-drone-field-800.jpg" srcset="/img/ndvi-drone-field-800.jpg 800w, /img/ndvi-drone-field-1600.jpg 1600w" sizes="(max-width: 960px) 50vw, 380px" width="800" height="600" loading="lazy" decoding="async" alt="Drone hovering over a field shown in vegetation-index color"></a>
+          <figcaption><span class="tag">Vigor view</span>Drone over a field, vegetation-index view</figcaption>
+        </figure></li>
+        <li><figure>
+          <a href="/img/vineyard-grapes-1600.jpg" target="_blank" rel="noopener"><img src="/img/vineyard-grapes-800.jpg" srcset="/img/vineyard-grapes-800.jpg 800w, /img/vineyard-grapes-1600.jpg 1600w" sizes="(max-width: 960px) 50vw, 380px" width="800" height="533" loading="lazy" decoding="async" alt="Low view of wine grapes hanging on old vines"></a>
+          <figcaption><span class="tag">Vineyard</span>Wine grapes near harvest</figcaption>
+        </figure></li>
+        <li><figure>
+          <a href="/img/winery-vineyard-1600.jpg" target="_blank" rel="noopener"><img src="/img/winery-vineyard-800.jpg" srcset="/img/winery-vineyard-800.jpg 800w, /img/winery-vineyard-1600.jpg 1600w" sizes="(max-width: 960px) 50vw, 380px" width="800" height="533" loading="lazy" decoding="async" alt="Hillside vineyard in fall color below a winery"></a>
+          <figcaption><span class="tag">Property</span>Hillside vineyard in fall color</figcaption>
+        </figure></li>
+      </ul>
     </div>
   </section>
 
