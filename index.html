@@ -9,7 +9,7 @@
 <title>LOS Drones — Drone crop mapping &amp; aerial inspection, Cottonwood CA</title>
 <meta name="description" content="Multispectral drone crop-vigor mapping for North State orchards, row crops and pasture. Local Part 107 pilot based in Cottonwood, Tehama County.">
 <meta property="og:title" content="LOS Drones | Multispectral crop-vigor mapping">
-<meta property="og:description" content="See crop stress before it shows. Drone vigor maps for orchards, row crops and pasture in Tehama, Shasta, Glenn and Butte counties.">
+<meta property="og:description" content="A map of your block, so you and your PCA know where to look. Drone vigor maps for orchards, row crops and pasture in Tehama, Shasta, Glenn and Butte counties.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -184,6 +184,10 @@ h3 { font-family: var(--display); font-weight: 750; font-stretch: 90%; font-size
 .gallery a:hover img { transform: scale(1.03); }
 .gallery figcaption { margin-top: 8px; font-size: 0.92rem; color: var(--muted); }
 .gallery figcaption .tag { margin: 0 8px 0 0; }
+.gallery.samples { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.gallery.samples a { background: #FFFFFF; border: 1px solid var(--line); }
+.gallery.samples img { object-fit: contain; }
+.gallery.samples a:hover img { transform: none; }
 @media (prefers-reduced-motion: reduce) { .gallery img { transition: none; } .gallery a:hover img { transform: none; } }
 .also strong { color: var(--ink); }
 
@@ -297,7 +301,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
       <a class="nav-link" href="#pricing">Pricing</a>
       <a class="nav-link" href="#mapping">Mapping &amp; inspection</a>
       <a class="nav-link" href="#about">About</a>
-      <a class="btn" href="#contact">Free field consult</a>
+      <a class="btn" href="#contact">Get a quote</a>
     </nav>
   </div>
 </header>
@@ -308,10 +312,10 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
       <div class="hero-grid">
         <div>
           <p class="kicker">Multispectral drone mapping · North State</p>
-          <h1>See crop stress before it shows.</h1>
-          <p class="lede">LOS Drones flies orchards, row crops and pasture with a multispectral drone and turns each flight into a vigor map of every tree and row. The map shows where the canopy is weaker, so you and your agronomist know exactly where to walk. I collect the data. You and your crop adviser make the call.</p>
+          <h1>A map of your block, so you and your PCA know where to look.</h1>
+          <p class="lede">LOS Drones flies orchards, row crops and pasture with a multispectral drone and turns each flight into a vigor map of every tree and row, plus a sharp photo map of the same ground. The map is a tool: it shows where the canopy is weaker, and you and your PCA or crop adviser decide what it means. I collect the data. You make the call.</p>
           <div class="cta-row">
-            <a class="btn" href="#contact">Book a free field consult</a>
+            <a class="btn" href="#contact">Get a quote</a>
             <a class="btn ghost" href="#how">How a flight works</a>
             <a class="btn ghost" href="#mapping">Beyond the farm</a>
           </div>
@@ -345,9 +349,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
         <div><dt>Pilot</dt><dd>FAA Part 107 certified</dd></div>
         <div><dt>Flight time</dt><dd>2,000+ commercial hours</dd></div>
         <div><dt>Safety record</dt><dd>Zero crashes or incidents</dd></div>
-        <div><dt>Insured</dt><dd>$1M liability, certificate on request</dd></div>
-        <div><dt>Accuracy</dt><dd>RTK, centimeter-level</dd></div>
-        <div><dt>Ag mapped</dt><dd>500+ acres</dd></div>
+        <div><dt>Insured</dt><dd>$1M liability</dd></div>
+        <div><dt>Positioning</dt><dd>RTK</dd></div>
         <div><dt>Based in</dt><dd>Cottonwood, Tehama County</dd></div>
       </dl>
     </div>
@@ -360,13 +363,13 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
           <p class="label">Services</p>
           <h2>What a flight tells you</h2>
         </div>
-        <p>One flight captures a calibrated multispectral map and a high-resolution photo map of the same ground. I deliver the maps and the numbers behind them. Diagnosis stays with you and your agronomist or PCA.</p>
+        <p>One flight captures a calibrated multispectral map and a high-resolution photo map of the same ground. I deliver the maps and the numbers behind them. Diagnosis stays with you and your PCA or crop adviser.</p>
       </div>
       <div class="services">
         <article class="service">
-          <span class="tag">NDVI · NDRE · GNDVI and more</span>
+          <span class="tag">NDVI · NDRE · GNDVI · OSAVI</span>
           <h3>Crop vigor maps</h3>
-          <p>See where the canopy is weaker before it's obvious from the ground. Each map shows vigor tree by tree or row by row, so you and your adviser scout the right spots instead of the whole block.</p>
+          <p>Where the canopy is weaker, tree by tree or row by row, so you and your PCA scout the right spots instead of the whole block. The standard indices built from the drone's green, red, red-edge and near-infrared bands, all from the same flight.</p>
         </article>
         <article class="service">
           <span class="tag">NDVI + photo map</span>
@@ -375,8 +378,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
         </article>
         <article class="service">
           <span class="tag">20 MP orthomosaic</span>
-          <h3>Photo maps and acreage</h3>
-          <p>One sharp, measurable photo map of your whole property. Use it for planning, acreage checks, counting gaps for replants and keeping records.</p>
+          <h3>Photo maps</h3>
+          <p>One sharp photo map of your whole property. Use it for planning, counting gaps for replants and keeping records. Scaled for planning, not a boundary or legal survey.</p>
         </article>
         <article class="service">
           <span class="tag">Dated, geo-referenced</span>
@@ -407,7 +410,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
           <div class="formula">
             <code>NDVI = (NIR − Red) ÷ (NIR + Red)</code>
             <p>Scores run from −1 to 1. Bare soil reads around 0.1 to 0.2. Dense, healthy canopy reads 0.6 and up.</p>
-            <p>NDVI is the common starting point. The same flight also produces NDRE, GNDVI, OSAVI and other indices, so if your agronomist prefers a different one for your crop or growth stage, you get that map instead at no extra flight.</p>
+            <p>NDVI is the common starting point. The same flight also produces NDRE, GNDVI, OSAVI and similar indices built from those four bands, so if your PCA prefers a different one for your crop or growth stage, you get that map at no extra flight.</p>
           </div>
         </div>
       </div>
@@ -424,10 +427,10 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
         <p>Most growers start with one block they're worried about. If the map earns its keep, we add the rest.</p>
       </div>
       <ol class="steps">
-        <li><h3>Tell me about the field</h3><p>Crop, acreage and what you're seeing or worried about. I'll suggest the right timing and which maps will answer your question.</p></li>
+        <li><h3>Tell me about the block</h3><p>Crop, acreage and what you want a look at. You and your PCA pick the timing; I schedule the flight when it suits you.</p></li>
         <li><h3>I fly it</h3><p>A pre-planned, automated flight at a set height with nothing driving through your rows. I handle the airspace checks and safety.</p></li>
-        <li><h3>You get the maps</h3><p>A vigor map and a photo map, plus a short summary of where the numbers are lowest. Files open on your phone, load into farm software, or go straight to your agronomist.</p></li>
-        <li><h3>Track the season</h3><p>Repeat flights show whether a change made a difference and flag new weak spots while they're still small.</p></li>
+        <li><h3>You get the maps</h3><p>A vigor map and a photo map of the block, delivered as files you keep and can hand to your PCA or crop adviser.</p></li>
+        <li><h3>Build a record through the year</h3><p>Repeat flights capture the block as it moves through the season: dormant, bloom, canopy, harvest. Dated maps you can compare year to year and put in front of an insurer or lender.</p></li>
       </ol>
     </div>
   </section>
@@ -439,7 +442,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
           <p class="label">Pricing</p>
           <h2>Straightforward pricing</h2>
         </div>
-        <p>Quotes are based on acreage and distance. Every vegetation index from the same flight is included, so there's no charge per map.</p>
+        <p>Quotes are based on acreage and distance. The standard vegetation indices from the same flight are included, so there's no charge per map.</p>
       </div>
       <dl class="pricing">
         <div><dt>Single flight</dt><dd><span class="amt">From $10/acre</span><span class="sub">$450 minimum, covers up to about 40 acres</span></dd></div>
@@ -457,24 +460,26 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
           <p class="label">From the field</p>
           <h2>A look at the work</h2>
         </div>
-        <p>Orchards, row crops and vineyards, in true color and in the vegetation-index view that a vigor map is built from. Tap any photo to see it full size.</p>
+        <p>Two real maps from one flight, then the crops I fly in true color. Tap any image to see it full size.</p>
       </div>
-      <ul class="gallery">
+      <ul class="gallery samples">
+        <li><figure>
+          <a href="/img/sample-ndvi-13ac.png" target="_blank" rel="noopener"><img src="/img/sample-ndvi-13ac.png" width="800" height="600" loading="lazy" decoding="async" alt="NDVI vigor map of a 13-acre vineyard block: strong canopy in red along one edge, a weak band in blue across the top, softer pockets through the middle"></a>
+          <figcaption><span class="tag">NDVI</span>13-acre vineyard block, 1.2 in/px. Red is strong canopy, blue is weak; the straight blue lines are avenues. Mean NDVI 0.42.</figcaption>
+        </figure></li>
+        <li><figure>
+          <a href="/img/sample-ndre-13ac.png" target="_blank" rel="noopener"><img src="/img/sample-ndre-13ac.png" width="800" height="600" loading="lazy" decoding="async" alt="NDRE vigor map of the same 13-acre vineyard block, separating the mid-vigor areas more finely than NDVI"></a>
+          <figcaption><span class="tag">NDRE</span>Same block, same flight, red-edge band instead of red. More sensitive to canopy nitrogen, so it separates the mid-vigor areas NDVI lumps together.</figcaption>
+        </figure></li>
+      </ul>
+      <ul class="gallery" style="margin-top: clamp(12px, 2vw, 20px)">
         <li><figure>
           <a href="/img/orchard-1600.jpg" target="_blank" rel="noopener"><img src="/img/orchard-800.jpg" srcset="/img/orchard-800.jpg 800w, /img/orchard-1600.jpg 1600w" sizes="(max-width: 960px) 50vw, 380px" width="800" height="533" loading="lazy" decoding="async" alt="Drone view down orchard rows"></a>
           <figcaption><span class="tag">Orchard</span>Orchard rows, mid-season</figcaption>
         </figure></li>
         <li><figure>
-          <a href="/img/ndvi-vine-rows-1600.jpg" target="_blank" rel="noopener"><img src="/img/ndvi-vine-rows-800.jpg" srcset="/img/ndvi-vine-rows-800.jpg 800w, /img/ndvi-vine-rows-1600.jpg 1600w" sizes="(max-width: 960px) 50vw, 380px" width="800" height="600" loading="lazy" decoding="async" alt="Vine rows shown in vegetation-index color, with healthy canopy in red and orange"></a>
-          <figcaption><span class="tag">Vigor view</span>Vine rows in vegetation-index color</figcaption>
-        </figure></li>
-        <li><figure>
           <a href="/img/tomatoes-1600.jpg" target="_blank" rel="noopener"><img src="/img/tomatoes-800.jpg" srcset="/img/tomatoes-800.jpg 800w, /img/tomatoes-1600.jpg 1600w" sizes="(max-width: 960px) 50vw, 380px" width="800" height="533" loading="lazy" decoding="async" alt="Processing tomato field ahead of harvest"></a>
           <figcaption><span class="tag">Row crop</span>Processing tomatoes ahead of harvest</figcaption>
-        </figure></li>
-        <li><figure>
-          <a href="/img/ndvi-drone-field-1600.jpg" target="_blank" rel="noopener"><img src="/img/ndvi-drone-field-800.jpg" srcset="/img/ndvi-drone-field-800.jpg 800w, /img/ndvi-drone-field-1600.jpg 1600w" sizes="(max-width: 960px) 50vw, 380px" width="800" height="600" loading="lazy" decoding="async" alt="Drone hovering over a field shown in vegetation-index color"></a>
-          <figcaption><span class="tag">Vigor view</span>Drone over a field, vegetation-index view</figcaption>
         </figure></li>
         <li><figure>
           <a href="/img/vineyard-grapes-1600.jpg" target="_blank" rel="noopener"><img src="/img/vineyard-grapes-800.jpg" srcset="/img/vineyard-grapes-800.jpg 800w, /img/vineyard-grapes-1600.jpg 1600w" sizes="(max-width: 960px) 50vw, 380px" width="800" height="533" loading="lazy" decoding="async" alt="Low view of wine grapes hanging on old vines"></a>
@@ -530,7 +535,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
           <p class="label">About</p>
           <h2 style="margin-bottom:22px">Local pilot, real flight time</h2>
           <p>I'm Brian Beaver, owner and pilot of LOS Drones. The name stands for line of sight, the first rule of flying safe.</p>
-          <p>I've flown commercially since 2022: more than 2,000 hours, 15,000 structures inspected and 500+ acres of farmland mapped, without a crash or incident. I also trained new pilots and taught the agriculture class at a drone flight academy.</p>
+          <p>I've flown commercially since 2022: more than 2,000 hours and 15,000 structures inspected, plus vineyard and orchard mapping, without a crash or incident. I also trained new pilots and taught the agriculture class at a drone flight academy.</p>
           <p>I live in Cottonwood with my family. When you reach out, you get me, and I'm glad to walk the field with you before we fly.</p>
         </div>
         <aside class="area" aria-label="Service area">
@@ -553,7 +558,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
         <div>
           <p class="label">Contact</p>
           <h2>Tell me about your field</h2>
-          <p style="margin-top:18px">Send a few details and I'll get back to you to set up a free consult. No commitment, and no jargon.</p>
+          <p style="margin-top:18px">Send your crop, acreage and location and I'll get back to you with a quote. No commitment, and no jargon.</p>
           <dl class="direct">
             <dt>Email</dt>
             <dd><a href="mailto:brian@losdrones.io">brian@losdrones.io</a></dd>
