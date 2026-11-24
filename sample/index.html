@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1F5C3B">
+<title>Sample map — LOS Drones</title>
+<meta name="description" content="Slide between a drone photo map and the NDVI vigor map from the same flight. Real maps from LOS Drones in Cottonwood, CA.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LOS Drones">
+<meta property="og:title" content="LOS Drones | Sample map">
+<meta property="og:description" content="One flight, two maps. Slide between the photo map and the vigor map.">
+<meta property="og:image" content="https://losdrones.io/img/sample-vineyard-ndvi-1600.jpg">
+<link rel="canonical" href="https://losdrones.io/sample">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ground: #EEF1EA;
+  --surface: #F8FAF5;
+  --ink: #16201A;
+  --muted: #47534A;
+  --line: #C6CFC3;
+  --accent: #1F5C3B;
+  --accent-ink: #FFFFFF;
+  --display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #101712;
+    --surface: #172019;
+    --ink: #E5EBE3;
+    --muted: #A9B5AA;
+    --line: #2E3C31;
+    --accent: #7CC796;
+    --accent-ink: #0E1A12;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.55; }
+img { max-width: 100%; display: block; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:hover { color: var(--ink); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+.wrap { max-width: 860px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 32px); }
+
+header { border-bottom: 1px solid var(--line); }
+header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); min-height: 44px; }
+.brand img { width: 34px; height: 34px; }
+.brand-name { font-family: var(--display); font-weight: 900; font-stretch: 115%; font-size: 1.25rem; line-height: 1; }
+.brand-sub { display: block; font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+.home { font-weight: 600; font-size: 0.95rem; text-decoration: none; padding: 10px 0; }
+.home:hover { text-decoration: underline; }
+
+.label { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0; }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(1.9rem, 6vw, 2.6rem); line-height: 1.08; letter-spacing: -0.01em; margin: 6px 0 10px; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 800; font-size: clamp(1.35rem, 4vw, 1.7rem); line-height: 1.15; margin: 0 0 8px; }
+.lede { margin: 0; color: var(--ink); max-width: 62ch; }
+main section { padding-block: clamp(22px, 5vw, 40px); }
+main section + section { border-top: 1px solid var(--line); }
+
+/* Swipe compare */
+.compare { position: relative; margin-top: 18px; background: #FFFFFF; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: ew-resize; aspect-ratio: 4 / 3; }
+.compare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.compare .top { clip-path: inset(0 0 0 var(--pos, 50%)); }
+.compare .divider { position: absolute; top: 0; bottom: 0; left: var(--pos, 50%); width: 2px; margin-left: -1px; background: #16201A; pointer-events: none; }
+.compare .knob { position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: #16201A; color: #FFFFFF; display: grid; place-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.compare .knob svg { width: 22px; height: 22px; }
+.compare .tag { position: absolute; top: 10px; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; background: rgba(22,32,26,0.85); color: #FFFFFF; padding: 4px 8px; border-radius: 4px; pointer-events: none; }
+.compare .tag.l { left: 10px; }
+.compare .tag.r { right: 10px; }
+.compare input[type=range] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.compare:focus-within { outline: 3px solid var(--accent); outline-offset: 3px; }
+.hint { font-size: 0.92rem; color: var(--muted); margin: 10px 0 0; }
+
+.read { display: grid; gap: 10px; margin-top: 18px; padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.read p { margin: 0; }
+.scale { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--muted); }
+.scale .bar { flex: 1 1 auto; height: 10px; border-radius: 5px; background: linear-gradient(90deg, #A50026, #F46D43, #FEE08B, #A6D96A, #1A9850); }
+
+.more { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.more figure { margin: 0; }
+.more a.img { display: block; background: #FFFFFF; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.more figcaption { font-size: 0.95rem; color: var(--muted); margin-top: 8px; }
+.more figcaption b { color: var(--ink); }
+
+.cta { background: var(--accent); color: var(--accent-ink); border-radius: 12px; padding: clamp(20px, 5vw, 32px); }
+.cta h2 { color: var(--accent-ink); }
+.cta p { margin: 0 0 16px; }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 18px; border-radius: 8px; font-weight: 700; text-decoration: none; background: var(--accent-ink); color: var(--accent); }
+.btn:hover { color: var(--accent); opacity: 0.92; }
+.btn.ghost { background: transparent; color: var(--accent-ink); border: 2px solid var(--accent-ink); }
+.btn.ghost:hover { color: var(--accent-ink); }
+footer { padding-block: 24px 40px; font-size: 0.9rem; color: var(--muted); }
+footer p { margin: 0 0 6px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="brand" href="/">
+      <img src="/brand/mark.svg" alt="" width="34" height="34">
+      <span><span class="brand-name">LOS Drones</span><span class="brand-sub">Line of sight · Cottonwood, CA</span></span>
+    </a>
+    <a class="home" href="/">losdrones.io</a>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <p class="label">Sample map</p>
+      <h1>One flight, two maps. Slide to compare.</h1>
+      <p class="lede">A vineyard in six blocks, about 19 acres, flown in one pass. On one side is the photo map. On the other is the vigor map from the same flight, so you can see exactly which vines it is pointing at.</p>
+
+      <div class="compare" id="compare" style="--pos: 50%">
+        <img src="/img/sample-vineyard-color-1600.jpg" srcset="/img/sample-vineyard-color-800.jpg 800w, /img/sample-vineyard-color-1600.jpg 1600w" sizes="(max-width: 860px) 100vw, 800px" width="800" height="600" alt="True-color photo map of a vineyard in six blocks">
+        <img class="top" src="/img/sample-vineyard-ndvi-1600.jpg" srcset="/img/sample-vineyard-ndvi-800.jpg 800w, /img/sample-vineyard-ndvi-1600.jpg 1600w" sizes="(max-width: 860px) 100vw, 800px" width="800" height="600" alt="NDVI vigor map of the same six vineyard blocks: mostly green, with paler patches inside several blocks and red along the road edges">
+        <span class="tag l">Photo map</span>
+        <span class="tag r">Vigor map</span>
+        <div class="divider"><div class="knob" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></div></div>
+        <input type="range" id="pos" min="0" max="100" value="50" step="1" aria-label="Slide between the photo map and the vigor map">
+      </div>
+      <p class="hint">Drag anywhere on the map. On a computer, click it and use the arrow keys.</p>
+
+      <div class="read">
+        <div class="scale"><span>Weakest</span><span class="bar" aria-hidden="true"></span><span>Strongest</span></div>
+        <p><b>Reading it:</b> green is the strongest growth in this field and red the weakest. Paler patches inside a block are where growth is thinner. Solid red at the edges is bare road, not vines.</p>
+        <p>The map shows where to look. You and your PCA or crop adviser walk those spots and decide what they mean.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>More from the field</h2>
+      <p class="lede">Tap a map to open it full size and zoom in.</p>
+      <ul class="more">
+        <li><figure>
+          <a class="img" href="/img/sample-orchard-ndvi-1600.jpg" target="_blank" rel="noopener"><img src="/img/sample-orchard-ndvi-800.jpg" width="800" height="600" loading="lazy" decoding="async" alt="NDVI vigor map of a large orchard block, tree rows running top to bottom"></a>
+          <figcaption><b>Orchard, about 130 acres.</b> Full size, each tree shows as its own dot along the rows.</figcaption>
+        </figure></li>
+        <li><figure>
+          <a class="img" href="/img/sample-tomato-zones-1600.jpg" target="_blank" rel="noopener"><img src="/img/sample-tomato-zones-800.jpg" width="800" height="600" loading="lazy" decoding="async" alt="NDVI zone map of a processing tomato field with winding red lines crossing the beds"></a>
+          <figcaption><b>Processing tomatoes, about 72 acres,</b> averaged into 10 ft zones. The winding lines cut across the beds, a pattern that's hard to see from the field edge.</figcaption>
+        </figure></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="cta">
+        <h2>Want a map of your block?</h2>
+        <p>Send your acreage and location and I'll send back a quote.</p>
+        <div class="btns">
+          <a class="btn" href="tel:+15303773551">Call (530) 377-3551</a>
+          <a class="btn ghost" href="mailto:brian@losdrones.io?subject=Map%20quote">Email brian@losdrones.io</a>
+          <a class="btn ghost" href="/">Services and pricing</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Multispectral maps are sunlight-corrected using the drone's onboard light sensor, so changing light during a flight doesn't skew the results.</p>
+    <p>LOS Drones LLC · FAA Part 107 · Insured · Cottonwood, CA</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var box = document.getElementById('compare');
+  var range = document.getElementById('pos');
+  if (!box || !range) return;
+  function set(p) {
+    p = Math.max(0, Math.min(100, p));
+    box.style.setProperty('--pos', p + '%');
+    range.value = Math.round(p);
+  }
+  function fromEvent(e) {
+    var r = box.getBoundingClientRect();
+    set(((e.clientX - r.left) / r.width) * 100);
+  }
+  var dragging = false;
+  box.addEventListener('pointerdown', function (e) {
+    dragging = true;
+    try { box.setPointerCapture(e.pointerId); } catch (err) {}
+    range.focus({ preventScroll: true });
+    fromEvent(e);
+  });
+  box.addEventListener('pointermove', function (e) { if (dragging) fromEvent(e); });
+  ['pointerup', 'pointercancel'].forEach(function (t) {
+    box.addEventListener(t, function () { dragging = false; });
+  });
+  range.addEventListener('input', function () { set(+range.value); });
+})();
+</script>
+</body>
+</html>
